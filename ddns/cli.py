@@ -6,6 +6,7 @@ import click
 import dns.query
 import dns.tsigkeyring
 import dns.update
+import dns.zone
 
 
 @click.group()
@@ -55,6 +56,20 @@ def delete(obj, host: str):
     update = dns.update.UpdateMessage(obj["domain"], keyring=obj["keyring"])
     update.delete(host)
     dns.query.tcp(update, obj["ddns_server"], timeout=10)
+
+
+@cli.command()
+@click.pass_obj
+def get(obj):
+    zone = dns.zone.from_xfr(
+        dns.query.xfr(
+            where=obj["ddns_server"], zone=obj["domain"], keyring=obj["keyring"]
+        )
+    )
+    for n in zone.nodes.keys():
+        r = zone[n].to_text(n).split(" ")
+        if r[3] == "A":
+            print("{0:<10} | {1:<15}".format(r[0], r[4]))
 
 
 def main():
