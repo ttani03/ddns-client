@@ -60,7 +60,7 @@ def delete(obj, host: str):
 
 @cli.command()
 @click.pass_obj
-def get(obj):
+def show(obj):
     zone = dns.zone.from_xfr(
         dns.query.xfr(
             where=obj["ddns_server"], zone=obj["domain"], keyring=obj["keyring"]
